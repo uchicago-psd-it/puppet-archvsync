@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+FTPSYNC=/usr/bin/ftpsync
+
+[ -x ${FTPSYNC} ] || exit 0
+
+cd /home/ftp
+su ftp -s /bin/sh -c 'ftpsync'

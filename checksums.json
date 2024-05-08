@@ -1,0 +1,18 @@
+{
+  "README.md": "4d217cdf8ae7d4363059c48e7eace723",
+  "examples/arcvsync.pp": "f7d483c17981671543aeae9142f6661c",
+  "manifests/acceptpush.pp": "4d164e29c96601491c8c5c74ada3cdac",
+  "manifests/apache.pp": "d99046137774d2d4eedf166f7a31eb59",
+  "manifests/deps.pp": "33f2e9772c00f9e83c94715830ddf56c",
+  "manifests/init.pp": "b2549c4d92e9c3a95dad9df5a4de99df",
+  "manifests/pureftpd.pp": "7cdafdc75b71a244ebc01f3e00fbd50d",
+  "manifests/rsync.pp": "3cdcec4eb128cef6d94cc4ebda20f626",
+  "manifests/runmirrors.pp": "0423549a7a35dbc52e93bea7e4ad0af1",
+  "metadata.json": "8c3f3653fc681e5f68aae64e69d7e626",
+  "templates/ftpsync-archive.conf.erb": "76b38f4be296804868451771930ea213",
+  "templates/ftpsync-security.conf.erb": "d82a99f471840b34d163fe554f23ccb3",
+  "templates/ftpsync-ubuntu.conf.erb": "10d37135604207bc05e7e65692daea11",
+  "templates/ftpsync.conf.erb": "247e137e5353e8ee89eb86a55864b69f",
+  "templates/ftpsync.erb": "8e3ed45a707aabf0b3db83a7674f1ab4",
+  "templates/runmirrors.conf.erb": "8fe378b17331744e922daed7589e7c5a"
+}

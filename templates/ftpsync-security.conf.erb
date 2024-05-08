@@ -1,0 +1,38 @@
+MIRRORNAME=<%= @mirrorname %>
+TO="<%= @debian_security_to %>"
+MAILTO="<%= @mailto %>"
+HUB=<%= @debian_security_hub %>
+
+########################################################################
+## Connection options
+########################################################################
+
+RSYNC_HOST=<%= @debian_security_rsync_host %>
+RSYNC_PATH="<%= @debian_security_rsync_path %>"
+# RSYNC_USER=
+# RSYNC_PASSWORD=
+
+########################################################################
+## Mirror information options
+########################################################################
+
+INFO_MAINTAINER="<%= @info_maintainer %>"
+INFO_SPONSOR="<%= @info_sponsor %>"
+INFO_COUNTRY=<%= @info_country %>
+INFO_LOCATION="<%= @info_location %>"
+INFO_THROUGHPUT=<%= @info_throughput %>
+
+########################################################################
+## Include and exclude options
+########################################################################
+
+ARCH_INCLUDE="<%= @arch_include_real %>"
+ARCH_EXCLUDE="<%= @arch_exclude %>"
+
+EXCLUDE="<%= @security_exclude %>"
+
+########################################################################
+## Log option
+########################################################################
+
+LOGDIR=<%= @logdir %>-security

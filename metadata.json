@@ -1,0 +1,52 @@
+{
+  "name": "infomaniak-archvsync",
+  "version": "1.0.0",
+  "author": "Infomaniak SA",
+  "summary": "Puppet module for Debian Archive Sync",
+  "license": "GPL-3+",
+  "source": "https://salsa.debian.org/puppet-team/puppet-module-debian-archvsync.git",
+  "project_page": "https://salsa.debian.org/puppet-team/puppet-module-debian-archvsync",
+  "issues_url": null,
+  "dependencies": [
+    {
+      "name": "puppetlabs/apache",
+      "version_requirement": ">=3.0.0"
+    },
+    {
+      "name": "puppetlabs/inifile",
+      "version_requirement": ">=2.0.0"
+    },
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">=5.0.0"
+    },
+    {
+      "name": "puppetlabs-sshkeys_core",
+      "version_requirement": ">=1.0.0"
+    }
+  ],
+  "data_provider": null,
+  "description": "Installs and configures ftpsync.",
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "Debian",
+      "operatingsystemrelease": [
+        "10",
+        "11",
+        "12"
+      ]
+    },
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "18.04"
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": "5.x"
+    }
+  ]
+}
