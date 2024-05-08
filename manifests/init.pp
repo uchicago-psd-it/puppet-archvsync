@@ -328,6 +328,28 @@ class archvsync(
     mode                    => '0755',
     selinux_ignore_defaults => true,
   }
+  -> file { "${homedir}/.config":
+    ensure                  => directory,
+    owner                   => 'ftp',
+    group                   => 'ftp',
+    mode                    => '0750',
+    selinux_ignore_defaults => true,
+  }
+  -> file { "${homedir}/.config/ftpsync":
+    ensure                  => directory,
+    owner                   => 'ftp',
+    group                   => 'ftp',
+    mode                    => '0750',
+    selinux_ignore_defaults => true,
+  }
+  -> file { "${homedir}/.config/ftpsync/ftpsync.conf":
+    ensure                  => file,
+    owner                   => 'ftp',
+    group                   => 'ftp',
+    mode                    => '0640',
+    selinux_ignore_defaults => true,
+    content                 => template("${module_name}/ftpsync.conf.erb"),
+  }
 
   # Set up users for sync targets if different
   $push_configs = ['debian','debian_security','debian_archive','ubuntu']
