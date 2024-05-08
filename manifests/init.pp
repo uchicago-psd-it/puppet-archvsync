@@ -435,45 +435,45 @@ class archvsync(
     owner                   => $debian_security_push_user,
     mode                    => '0755',
     selinux_ignore_defaults => true,
-    require                 => File[$homedir],
+    require                 => File[$debian_security_push_homedir],
   }
   file { $debian_archive_to:
     ensure                  => $ensure_debian_archive_to,
     owner                   => $debian_archive_push_user,
     mode                    => '0755',
     selinux_ignore_defaults => true,
-    require                 => File[$homedir],
+    require                 => File[$debian_archive_push_homedir],
   }
   file { $ubuntu_to:
     ensure                  => $ensure_ubuntu_to,
     owner                   => $ubuntu_push_user,
     mode                    => '0755',
     selinux_ignore_defaults => true,
-    require                 => File[$homedir],
+    require                 => File[$ubuntu_push_homedir],
   }
-  file { "${homedir}/.config/ftpsync/ftpsync-ubuntu.conf":
+  file { "${ubuntu_push_homedir}/.config/ftpsync/ftpsync-ubuntu.conf":
     ensure                  => $ensure_ubuntu_ftpsync,
-    owner                   => ftp,
+    owner                   => $ubuntu_push_user,
     mode                    => '0644',
     selinux_ignore_defaults => true,
     content                 => template("${module_name}/ftpsync-ubuntu.conf.erb"),
-    require                 => File["${homedir}/.config/ftpsync"],
+    require                 => File["${ubuntu_push_homedir}/.config/ftpsync"],
   }
-  file { "${homedir}/.config/ftpsync/ftpsync-security.conf":
+  file { "${debian_security_push_homedir}/.config/ftpsync/ftpsync-security.conf":
     ensure                  => $ensure_debian_security_ftpsync,
-    owner                   => ftp,
+    owner                   => $debian_security_push_user,
     mode                    => '0644',
     selinux_ignore_defaults => true,
     content                 => template("${module_name}/ftpsync-security.conf.erb"),
-    require                 => File["${homedir}/.config/ftpsync"],
+    require                 => File["${debian_security_push_homedir}/.config/ftpsync"],
   }
-  file { "${homedir}/.config/ftpsync/ftpsync-archive.conf":
+  file { "${debian_archive_push_homedir}/.config/ftpsync/ftpsync-archive.conf":
     ensure                  => $ensure_debian_archive_ftpsync,
-    owner                   => ftp,
+    owner                   => $debian_archive_push_user,
     mode                    => '0644',
     selinux_ignore_defaults => true,
     content                 => template("${module_name}/ftpsync-archive.conf.erb"),
-    require                 => File["${homedir}/.config/ftpsync"],
+    require                 => File["${debian_archive_push_homedir}/.config/ftpsync"],
   }
 
   if $setup_daily_cron {
