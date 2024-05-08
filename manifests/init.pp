@@ -103,6 +103,10 @@
 #    another mirror to send a push signal.
 #    Default to false
 #
+#  [*debian_push_user*]
+#    (Optional) Username for triggering push sync for debian mirror
+#    Default to ftp
+#
 #  [*debian_push_ssh_key*]
 #    (Optional) Publish ssh key to accept the push
 #    Default to undef
