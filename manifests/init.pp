@@ -230,6 +230,7 @@ class archvsync(
   $debian_exclude                       = '',
 
   $debian_accept_push                   = false,
+  $debian_push_user                     = 'ftp',
   $debian_push_ssh_key                  = undef,
   $debian_enable_runmirrors             = false,
   $debian_runmirrors_hostnames          = [],
@@ -242,6 +243,7 @@ class archvsync(
   $debian_security_exclude              = '',
 
   $debian_security_accept_push          = false,
+  $debian_security_push_user            = $debian_push_user,
   $debian_security_push_ssh_key         = undef,
   $debian_security_enable_runmirrors    = false,
   $debian_security_runmirrors_hostnames = [],
@@ -254,6 +256,7 @@ class archvsync(
   $debian_archive_exclude               = '--exclude=buzz* --exclude=rex* --exclude=bo* --exclude=hamm* --exclude=slink* --exclude=potato* --exclude=woody* --exclude=sarge* --exclude=etch* --exclude=lenny* --exclude=squeeze* --exclude=wheezy*',
 
   $debian_archive_accept_push           = false,
+  $debian_archive_push_user             = $debian_push_user,
   $debian_archive_push_ssh_key          = undef,
   $debian_archive_enable_runmirrors     = false,
   $debian_archive_runmirrors_hostnames  = [],
@@ -267,6 +270,7 @@ class archvsync(
 
   $ubuntu_accept_push                   = false,
   # This is the official Ubuntu push key, as per https://wiki.ubuntu.com/Mirrors/PushMirroring
+  $ubuntu_push_user                     = 'ftp',
   $ubuntu_push_ssh_key                  = 'AAAAB3NzaC1yc2EAAAABIwAAAQEAt8xHRbCVFT3Uw/B+TavIlDYRoLMxOKlN3HnBeniFUJTto5Im52FbT3ODfMszz5/BIAnXBf1baWDljHErx4huohh9MxyovZ0h8GYCmMy7dZzsrV5eYhLXd2idCOKIl6gr0BTgTlJOKOgVEoZ2YtiU9MnNzRk3gkBeCMDJrnQOCC8Sko0F0RUJnrzLXOdtvDfNu7Ff+tRNb4PwrU3inbm2YJRnOoZI9vIsv/9DwsMm9d+YIIOz/7y5jLGhZ34nXzhmI6cJO92+Ve5ubhbbpKUFQAh2L1PP6A+I7jHvoWHToSaZlt+DCN4Kg+JlZuf2FXk8MeHkEc6qWWHQTFF8/ArKew==',
   $ubuntu_enable_runmirrors             = false,
   $ubuntu_runmirrors_hostnames          = [],
@@ -311,7 +315,25 @@ class archvsync(
   }
   -> file { $debian_to:
     ensure                  => directory,
-    owner                   => ftp,
+    owner                   => $debian_push_user,
+    mode                    => '0755',
+    selinux_ignore_defaults => true,
+  }
+  -> file { $debian_security_to:
+    ensure                  => directory,
+    owner                   => $debian_security_push_user,
+    mode                    => '0755',
+    selinux_ignore_defaults => true,
+  }
+  -> file { $debian_archive_to:
+    ensure                  => directory,
+    owner                   => $debian_archive_push_user,
+    mode                    => '0755',
+    selinux_ignore_defaults => true,
+  }
+  -> file { $ubuntu_to:
+    ensure                  => directory,
+    owner                   => $ubuntu_push_user,
     mode                    => '0755',
     selinux_ignore_defaults => true,
   }
@@ -341,21 +363,21 @@ class archvsync(
     content                 => template("${module_name}/ftpsync.conf.erb"),
   }
   -> file { "${homedir}/.config/ftpsync/ftpsync-ubuntu.conf":
-    ensure                  => file,
+    ensure                  => $sync_ubuntu ? file : absent,
     owner                   => ftp,
     mode                    => '0644',
     selinux_ignore_defaults => true,
     content                 => template("${module_name}/ftpsync-ubuntu.conf.erb"),
   }
   -> file { "${homedir}/.config/ftpsync/ftpsync-security.conf":
-    ensure                  => file,
+    ensure                  => $sync_debian_security ? file : absent,
     owner                   => ftp,
     mode                    => '0644',
     selinux_ignore_defaults => true,
     content                 => template("${module_name}/ftpsync-security.conf.erb"),
   }
   -> file { "${homedir}/.config/ftpsync/ftpsync-archive.conf":
-    ensure                  => file,
+    ensure                  => $sync_debian_archive ? file : absent,
     owner                   => ftp,
     mode                    => '0644',
     selinux_ignore_defaults => true,
@@ -381,56 +403,11 @@ class archvsync(
     }
   }
 
-  # Configure the push command wrapper
-#  notify {"debian_accept_push : ${debian_accept_push}":}
-#  notify {"debian_security_accept_push : ${debian_security_accept_push}":}
-#  notify {"debian_archive_accept_push : ${debian_archive_accept_push}":}
-#  notify {"ubuntu_accept_push : ${ubuntu_accept_push}":}
-  if $debian_accept_push or $debian_security_accept_push or $debian_archive_accept_push or $ubuntu_accept_push{
-#  if ($debian_accept_push == true) or ($debian_security_accept_push == true) or ($debian_archive_accept_push == true){
-#    notify {"Creating ssh wrapper...": }
-    file { "${homedir}/.ssh/accept_push_wrapper":
-      ensure => file,
-      owner                   => 'ftp',
-      group                   => 'ftp',
-      mode                    => '0755',
-      selinux_ignore_defaults => true,
-      content                 => '#!/bin/sh
-
-set -e
-
-# Debug: remove this in production, as this is a security hole
-# (execution or arbitrary command).
-logger -t "ssh-push-recv" "Recieved $SSH_ORIGINAL_COMMAND"
-
-case $SSH_ORIGINAL_COMMAND in
-	"ftpsync sync:archive: sync:all"|"ftpsync sync:archive: sync:stage1"|"ftpsync sync:archive: sync:stage2"|"ftpsync sync:archive:security sync:all"|"ftpsync sync:archive:security sync:stage1"|"ftpsync sync:archive:security sync:stage2"|"ftpsync sync:archive:archive sync:all"|"ftpsync sync:archive:archive sync:stage1"|"ftpsync sync:archive:archive sync:stage2"|"ftpsync sync:archive:ubuntu sync:all"|"ftpsync sync:archive:ubuntu sync:stage1"|"ftpsync sync:archive:ubuntu sync:stage2")
-	logger -t "ssh-push-recv" "Executing $SSH_ORIGINAL_COMMAND"
-	$SSH_ORIGINAL_COMMAND
-;;
-	" sync:archive: sync:all"|" sync:archive: sync:stage1"|" sync:archive: sync:stage2"|" sync:archive:security sync:all"|" sync:archive:security sync:stage1"|" sync:archive:security sync:stage2"|" sync:archive:archive sync:all"|" sync:archive:archive sync:stage1"|" sync:archive:archive sync:stage2"|" sync:archive:ubuntu sync:all"|" sync:archive:ubuntu sync:stage1"|" sync:archive:ubuntu sync:stage2")
-	logger -t "ssh-push-recv" "Executing ftpsync $SSH_ORIGINAL_COMMAND"
-	ftpsync $SSH_ORIGINAL_COMMAND
-;;
-*)
-	logger -t "ssh-push-recv" "Recieved not allowed command"
-	echo "Command not permited."
-	exit 1
-;;
-esac
-exit 0
-'
-    }
-  }else{
-#    notify {"Deleting ssh wrapper...": }
-    file { "${homedir}/.ssh/accept_push_wrapper":
-      ensure => absent,
-    }
-  }
 
   # Configure push recieve
   if $debian_accept_push {
     archvsync::acceptpush { 'debian':
+      ssh_user       => $debian_push_user,
       ssh_public_key => $debian_push_ssh_key,
     }
     $ftpsync_debian = ''
@@ -443,6 +420,7 @@ exit 0
     if $sync_debian_security {
       if $debian_security_accept_push {
         archvsync::acceptpush { 'debian-security':
+          ssh_user       => $debian_security_push_user,
           ssh_public_key => $debian_security_push_ssh_key,
         }
         $ftpsync_debian_security = ''
@@ -456,6 +434,7 @@ exit 0
     if $sync_debian_archive {
       if $debian_archive_accept_push {
         archvsync::acceptpush { 'debian-archive':
+          ssh_user       => $debian_archive_push_user,
           ssh_public_key => $debian_archive_push_ssh_key,
         }
         $ftpsync_debian_archive = ''
@@ -471,6 +450,7 @@ exit 0
       if $ubuntu_accept_push {
 #        notify {"Adding archvsync::acceptpush with name=ubuntu": }
         archvsync::acceptpush { 'ubuntu':
+          ssh_user       => $ubuntu_push_user,
           ssh_public_key => $ubuntu_push_ssh_key,
         }
         $ftpsync_ubuntu = ''

@@ -15,19 +15,19 @@
 #  Default: 'ssh-rsa'
 #
 define archvsync::acceptpush (
-  $ssh_home_dir = '/home/ftp',
+  $ssh_user       = 'ftp'
+  $ssh_home_dir   = "/home/${ssh_user}",
   $ssh_public_key = undef,
-  $ssh_key_type = 'ssh-rsa',
+  $ssh_key_type   = 'ssh-rsa',
 ){
 
-  $ssh_wrapper = "/home/ftp/.ssh/accept_push_wrapper"
   ssh_authorized_key { "archvsync_acceptpush_${name}":
     ensure  => present,
     key     => $ssh_public_key,
     type    => $ssh_key_type,
-    user    => 'ftp',
+    user    => $ssh_user,
     options => [
-      "command=\"${ssh_wrapper} &\"",
+      "command=\"/usr/bin/ftpsync &\"",
       'no-port-forwarding',
       'no-X11-forwarding',
       'no-agent-forwarding',
