@@ -45,7 +45,7 @@ class archvsync::apache (
   $servername                  = $facts['networking']['fqdn'],
   $server_aliases              = $facts['networking']['fqdn'],
   $http_port                   = 80,
-  $access_log_format           = false,
+  $access_log_format           = undef,
   $redirect_type               = 'permanent',
   $priority                    = '10',
   $vhost_conf_name             = 'debmirror_vhost',
