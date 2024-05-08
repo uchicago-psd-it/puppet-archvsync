@@ -375,7 +375,8 @@ class archvsync(
         password_max_age => '99999',
         password_min_age => '0',
         shell            => '/bin/bash',
-        groups           => [$user],
+        groups           => ["${user},ftp"],
+        require          => Group['ftp'],
       }
       -> file { $push_homedir:
         ensure                  => directory,
@@ -414,8 +415,9 @@ class archvsync(
   }
   file { $logdir:
     ensure                  => directory,
-    owner                   => ftp,
-    mode                    => '0755',
+    owner                   => 'ftp',
+    group                   => 'ftp',
+    mode                    => '0775',
     selinux_ignore_defaults => true,
     require                 => File[$homedir]
   }
@@ -455,6 +457,7 @@ class archvsync(
   file { $debian_security_to:
     ensure                  => $ensure_debian_security_to,
     owner                   => $debian_security_push_user,
+    group                   => $debian_security_push_user,
     mode                    => '0755',
     selinux_ignore_defaults => true,
     require                 => File[$debian_security_push_homedir],
@@ -462,6 +465,7 @@ class archvsync(
   file { $debian_archive_to:
     ensure                  => $ensure_debian_archive_to,
     owner                   => $debian_archive_push_user,
+    group                   => $debian_archive_push_user,
     mode                    => '0755',
     selinux_ignore_defaults => true,
     require                 => File[$debian_archive_push_homedir],
@@ -469,6 +473,7 @@ class archvsync(
   file { $ubuntu_to:
     ensure                  => $ensure_ubuntu_to,
     owner                   => $ubuntu_push_user,
+    group                   => $ubuntu_push_user,
     mode                    => '0755',
     selinux_ignore_defaults => true,
     require                 => File[$ubuntu_push_homedir],
@@ -476,6 +481,7 @@ class archvsync(
   file { "${ubuntu_push_homedir}/.config/ftpsync/ftpsync-ubuntu.conf":
     ensure                  => $ensure_ubuntu_ftpsync,
     owner                   => $ubuntu_push_user,
+    group                   => $ubuntu_push_user,
     mode                    => '0644',
     selinux_ignore_defaults => true,
     content                 => template("${module_name}/ftpsync-ubuntu.conf.erb"),
@@ -484,6 +490,7 @@ class archvsync(
   file { "${debian_security_push_homedir}/.config/ftpsync/ftpsync-security.conf":
     ensure                  => $ensure_debian_security_ftpsync,
     owner                   => $debian_security_push_user,
+    group                   => $debian_security_push_user,
     mode                    => '0644',
     selinux_ignore_defaults => true,
     content                 => template("${module_name}/ftpsync-security.conf.erb"),
@@ -492,6 +499,7 @@ class archvsync(
   file { "${debian_archive_push_homedir}/.config/ftpsync/ftpsync-archive.conf":
     ensure                  => $ensure_debian_archive_ftpsync,
     owner                   => $debian_archive_push_user,
+    group                   => $debian_archive_push_user,
     mode                    => '0644',
     selinux_ignore_defaults => true,
     content                 => template("${module_name}/ftpsync-archive.conf.erb"),
