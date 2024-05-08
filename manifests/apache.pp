@@ -42,80 +42,89 @@
 #
 class archvsync::apache (
   $bind_address                = undef,
-  $servername                  = $::fqdn,
-  $server_aliases              = $::fqdn,
+  $servername                  = $facts['networking']['fqdn'],
+  $server_aliases              = $facts['networking']['fqdn'],
   $http_port                   = 80,
   $access_log_format           = false,
   $redirect_type               = 'permanent',
   $priority                    = '10',
-  $vhost_conf_name               = 'debmirror_vhost',
+  $vhost_conf_name             = 'debmirror_vhost',
 ){
 
   include ::archvsync::deps
   include ::apache
 
   $default_vhost_conf_no_ip = {
-    default_vhost               => false,
-    servername                  => $servername,
-    serveraliases               => any2array($server_aliases),
-    docroot                     => '/var/www/html',
-    access_log_file             => 'debian_mirror_access.log',
-    access_log_format           => $access_log_format,
-    error_log_file              => 'debian_mirror_error.log',
-    priority                    => $priority,
-    aliases                     => [{
-      alias => "${root_url_real}/debian",
-      path  => "${root_path}/home/ftp/debian",
-    },
-    {
-      alias => "${root_url_real}/debian-cd",
-      path  => "${root_path}/home/ftp/debian-cd",
-    },
-    {
-      alias => "${root_url_real}/debian-security",
-      path  => "${root_path}/home/ftp/debian-security",
-    },
-    {
-      alias => "${root_url_real}/debian-archive",
-      path  => "${root_path}/home/ftp/debian-archive",
-    },
-    {
-      alias => "${root_url_real}/ubuntu",
-      path  => "${root_path}/home/ftp/ubuntu",
-    }],
+    default_vhost        => false,
+    servername           => $servername,
+    serveraliases        => any2array($server_aliases),
+    docroot              => '/var/www/html',
+    access_log_file      => 'debian_mirror_access.log',
+    access_log_format    => $access_log_format,
+    error_log_file       => 'debian_mirror_error.log',
+    priority             => $priority,
+    aliases              => [
+      {
+        alias => '/debian',
+        path  => '/home/ftp/debian',
+      },
+      {
+        alias => '/debian-cd',
+        path  => '/home/ftp/debian-cd',
+      },
+      {
+        alias => '/debian-security',
+        path  => '/home/ftp/debian-security',
+      },
+      {
+        alias => '/debian-archive',
+        path  => '/home/ftp/debian-archive',
+      },
+      {
+        alias => '/ubuntu',
+        path  => '/home/ftp/ubuntu',
+      }
+    ],
     directories         => [
-    {  'path'                => '/home/ftp/debian',
-       'options'             => 'Indexes FollowSymLinks MultiViews',
-       'allow_override'      => 'None',
-       'Require'             => 'all granted',
+      {
+        'path'           => '/home/ftp/debian',
+        'options'        => 'Indexes FollowSymLinks MultiViews',
+        'allow_override' => 'None',
+        'Require'        => 'all granted',
       },
-    {  'path'                => '/home/ftp/ubuntu',
-       'options'             => 'Indexes FollowSymLinks MultiViews',
-       'allow_override'      => 'None',
-       'Require'             => 'all granted',
+      {
+        'path'           => '/home/ftp/ubuntu',
+        'options'        => 'Indexes FollowSymLinks MultiViews',
+        'allow_override' => 'None',
+        'Require'        => 'all granted',
       },
-    {  'path'                => '/home/ftp/debian-cd',
-       'options'             => 'Indexes FollowSymLinks MultiViews',
-       'allow_override'      => 'None',
-       'Require'             => 'all granted',
+      {
+        'path'           => '/home/ftp/debian-cd',
+        'options'        => 'Indexes FollowSymLinks MultiViews',
+        'allow_override' => 'None',
+        'Require'        => 'all granted',
       },
-    {  'path'                => '/home/ftp/debian-security',
-       'options'             => 'Indexes FollowSymLinks MultiViews',
-       'allow_override'      => 'None',
-       'Require'             => 'all granted',
+      {
+        'path'           => '/home/ftp/debian-security',
+        'options'        => 'Indexes FollowSymLinks MultiViews',
+        'allow_override' => 'None',
+        'Require'        => 'all granted',
       },
-    {  'path'                => '/home/ftp/debian-archive',
-       'options'             => 'Indexes FollowSymLinks MultiViews',
-       'allow_override'      => 'None',
-       'Require'             => 'all granted',
+      {
+        'path'           => '/home/ftp/debian-archive',
+        'options'        => 'Indexes FollowSymLinks MultiViews',
+        'allow_override' => 'None',
+        'Require'        => 'all granted',
       },
-    {  'path'                => '/var/www/html',
-       'options'             => 'Indexes FollowSymLinks MultiViews',
-       'allow_override'      => 'None',
-       'Require'             => 'all granted',
-      },      ],
-    port                        => $http_port,
-    redirectmatch_status        => $redirect_type,
+      {
+        'path'           => '/var/www/html',
+        'options'        => 'Indexes FollowSymLinks MultiViews',
+        'allow_override' => 'None',
+        'Require'        => 'all granted',
+      },
+    ],
+    port                 => $http_port,
+    redirectmatch_status => $redirect_type,
   }
 
   if $bind_address {

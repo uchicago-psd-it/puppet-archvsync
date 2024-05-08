@@ -23,19 +23,19 @@ class archvsync::pureftpd (
     require => Package['pure-ftpd'],
   }
   file {'/etc/pure-ftpd/conf/NoAnonymous':
-    ensure => absent,
-    notify => Service['pure-ftpd'],
+    ensure  => absent,
+    notify  => Service['pure-ftpd'],
     require => Package['pure-ftpd'],
   }
   file {'/etc/pure-ftpd/conf/AnonymousCantUpload':
-    ensure => present,
-    notify => Service['pure-ftpd'],
+    ensure  => present,
+    notify  => Service['pure-ftpd'],
     require => Package['pure-ftpd'],
     content => 'Yes',
   }
   file {'/etc/pure-ftpd/conf/AnonymousOnly':
-    ensure => present,
-    notify => Service['pure-ftpd'],
+    ensure  => present,
+    notify  => Service['pure-ftpd'],
     require => Package['pure-ftpd'],
     content => 'Yes',
   }

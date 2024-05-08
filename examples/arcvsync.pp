@@ -2,7 +2,7 @@
     manage_apache    => true,
     manage_pureftpd  => true,
     package_ensure   => 'present',
-    mirrorname       => $::fqdn,
+    mirrorname       => $facts['networking']['fqdn'],
     to               => '/home/ftp/debian/',
     mailto           => 'toto@example.com',
     homedir          => '/home/ftp',
@@ -27,7 +27,7 @@ class {'::archvsync':
   manage_rsync                         => true,
   configure_rsync                      => true,
   package_ensure                       => 'present',
-  mirrorname                           => $::fqdn,
+  mirrorname                           => $facts['networking']['fqdn'],
   mailto                               => 'toto@example.com',
   homedir                              => '/home/ftp',
   info_maintainer                      => 'Toor Op <root@localhost>',
@@ -54,7 +54,7 @@ class {'::archvsync':
 
   # debian-security mirror options
   sync_debian_security                 => true,
-  debian_security_to                   => '/home/ftp/debian-security/'
+  debian_security_to                   => '/home/ftp/debian-security/',
   debian_security_rsync_host           => 'rsync.security.debian.org',
   debian_security_rsync_path           => 'debian-security',
   debian_security_exclude              => '',
@@ -66,10 +66,10 @@ class {'::archvsync':
 
   # debian-archive mirror options
   sync_debian_archive                  => true,
-  debian_archive_to                    => '/home/ftp/debian-archive/'
+  debian_archive_to                    => '/home/ftp/debian-archive/',
   debian_archive_rsync_path            => 'debian-archive',
   debian_archive_rsync_host            => 'archive.debian.org',
-  debian_archive_exclude               => '--exclude=buzz* --exclude=rex* --exclude=bo* --exclude=hamm* --exclude=slink* --exclude=potato* --exclude=woody* --exclude=sarge* --exclude=etch* --exclude=lenny* --exclude=squeeze* --exclude=wheezy',
+  debian_archive_exclude               => '--exclude=buzz* --exclude=rex* --exclude=bo* --exclude=hamm* --exclude=slink* --exclude=potato* --exclude=woody* --exclude=sarge* --exclude=etch* --exclude=lenny* --exclude=squeeze* --exclude=wheezy', # lint:ignore:140chars
 
   debian_archive_accept_push           => false,
   debian_archive_push_ssh_key          => undef,

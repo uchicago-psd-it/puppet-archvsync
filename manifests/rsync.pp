@@ -12,7 +12,7 @@ class archvsync::rsync (
   if $configure_rsync {
     file { '/etc/rsyncd.conf':
       ensure                  => file,
-      owner                   => "root",
+      owner                   => 'root',
       content                 => 'uid = nobody
 gid = nogroup
 max connections = 50
@@ -86,7 +86,7 @@ socket options = SO_KEEPALIVE
 
     file { '/etc/default/rsync':
       ensure                  => file,
-      owner                   => "root",
+      owner                   => 'root',
       content                 => 'RSYNC_ENABLE=true
 ',
       selinux_ignore_defaults => true,
