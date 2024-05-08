@@ -337,50 +337,53 @@ class archvsync(
   if $push_users.length() != $push_homedirs.length() {
     fail('number of push users does not match number of their home directories. Check $*_push_user and $*_push_homedir')
   }
-  $push_users.each |$user| {
-    if $user == 'ftp' { next() }
-    $push_homedir = getvar("${user}_homedir")
-    group { $user:
-      ensure => present,
-    }
-    -> user { $user:
-      ensure           => 'present',
-      purge_ssh_keys   => true,
-      home             => $push_homedir,
-      password         => '!!',
-      password_max_age => '99999',
-      password_min_age => '0',
-      shell            => '/bin/bash',
-      groups           => [$user],
-    }
-    -> file { $push_homedir:
-      ensure                  => directory,
-      owner                   => $user,
-      group                   => $user,
-      mode                    => '0750',
-      selinux_ignore_defaults => true,
-    }
-    -> file { "${push_homedir}/.config":
-      ensure                  => directory,
-      owner                   => $user,
-      group                   => $user,
-      mode                    => '0750',
-      selinux_ignore_defaults => true,
-    }
-    -> file { "${push_homedir}/.config/ftpsync":
-      ensure                  => directory,
-      owner                   => $user,
-      group                   => $user,
-      mode                    => '0750',
-      selinux_ignore_defaults => true,
-    }
-    -> file { "${push_homedir}/.config/ftpsync/ftpsync.conf":
-      ensure                  => file,
-      owner                   => $user,
-      group                   => $user,
-      mode                    => '0640',
-      selinux_ignore_defaults => true,
-      content                 => template("${module_name}/ftpsync.conf.erb"),
+
+  $push_configs.each |$push| {
+    $user = getvar("${push}_push_user")
+    unless defined(User[$user]) {
+      $push_homedir = getvar("${push}_push_homedir")
+      group { $user:
+        ensure => present,
+      }
+      -> user { $user:
+        ensure           => 'present',
+        purge_ssh_keys   => true,
+        home             => $push_homedir,
+        password         => '!!',
+        password_max_age => '99999',
+        password_min_age => '0',
+        shell            => '/bin/bash',
+        groups           => [$user],
+      }
+      -> file { $push_homedir:
+        ensure                  => directory,
+        owner                   => $user,
+        group                   => $user,
+        mode                    => '0750',
+        selinux_ignore_defaults => true,
+      }
+      -> file { "${push_homedir}/.config":
+        ensure                  => directory,
+        owner                   => $user,
+        group                   => $user,
+        mode                    => '0750',
+        selinux_ignore_defaults => true,
+      }
+      -> file { "${push_homedir}/.config/ftpsync":
+        ensure                  => directory,
+        owner                   => $user,
+        group                   => $user,
+        mode                    => '0750',
+        selinux_ignore_defaults => true,
+      }
+      -> file { "${push_homedir}/.config/ftpsync/ftpsync.conf":
+        ensure                  => file,
+        owner                   => $user,
+        group                   => $user,
+        mode                    => '0640',
+        selinux_ignore_defaults => true,
+        content                 => template("${module_name}/ftpsync.conf.erb"),
+      }
     }
   }
   package { 'ftpsync':
