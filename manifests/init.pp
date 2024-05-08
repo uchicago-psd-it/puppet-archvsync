@@ -333,25 +333,25 @@ class archvsync(
   $push_configs = ['debian','debian_security','debian_archive','ubuntu']
   $push_homedirs = Array($push_configs.each |$x| { getvar("${x}_user") }).unique
 
-#  file { "${homedir}/.config":
-#    ensure                  => directory,
-#    owner                   => ftp,
-#    mode                    => '0755',
-#    selinux_ignore_defaults => true,
-#  }
-#  file { "${homedir}/.config/ftpsync":
-#    ensure                  => directory,
-#    owner                   => ftp,
-#    mode                    => '0755',
-#    selinux_ignore_defaults => true,
-#  }
-#  file { "${homedir}/.config/ftpsync/ftpsync.conf":
-#    ensure                  => file,
-#    owner                   => ftp,
-#    mode                    => '0644',
-#    selinux_ignore_defaults => true,
-#    content                 => template("${module_name}/ftpsync.conf.erb"),
-#  }
+  file { "${homedir}/.config":
+    ensure                  => directory,
+    owner                   => ftp,
+    mode                    => '0755',
+    selinux_ignore_defaults => true,
+  }
+  file { "${homedir}/.config/ftpsync":
+    ensure                  => directory,
+    owner                   => ftp,
+    mode                    => '0755',
+    selinux_ignore_defaults => true,
+  }
+  file { "${homedir}/.config/ftpsync/ftpsync.conf":
+    ensure                  => file,
+    owner                   => ftp,
+    mode                    => '0644',
+    selinux_ignore_defaults => true,
+    content                 => template("${module_name}/ftpsync.conf.erb"),
+  }
   package { 'ftpsync':
     ensure => $package_ensure,
     tag    => ['archvsync-package'],
