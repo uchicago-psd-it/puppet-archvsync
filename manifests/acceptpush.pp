@@ -15,7 +15,7 @@
 #  Default: 'ssh-rsa'
 #
 define archvsync::acceptpush (
-  $ssh_user       = 'ftp'
+  $ssh_user       = 'ftp',
   $ssh_home_dir   = "/home/${ssh_user}",
   $ssh_public_key = undef,
   $ssh_key_type   = 'ssh-rsa',
