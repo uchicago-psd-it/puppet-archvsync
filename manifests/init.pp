@@ -228,7 +228,7 @@ class archvsync(
   $info_throughput                      = '10Gb',
   $arch_include                         = 'amd64 source',
   $arch_exclude                         = '',
-  $logdir                               = '/home/ftp/log',
+  $logdir                               = '/var/log/ftpsync',
   $setup_daily_cron                     = true,
   $ftp_user_shell                       = '/bin/bash',
 
@@ -254,9 +254,7 @@ class archvsync(
   $debian_security_exclude              = '',
 
   $debian_security_accept_push          = false,
-  $debian_security_push_user            = $debian_push_user,
-  $debian_security_push_homedir         = "/home/${debian_security_push_user}",
-  $debian_security_push_ssh_key         = undef,
+  $debian_security_push_ssh_key         = $debian_push_ssh_key,
   $debian_security_enable_runmirrors    = false,
   $debian_security_runmirrors_hostnames = [],
 
@@ -269,9 +267,7 @@ class archvsync(
   $debian_archive_exclude               = '--exclude=buzz* --exclude=rex* --exclude=bo* --exclude=hamm* --exclude=slink* --exclude=potato* --exclude=woody* --exclude=sarge* --exclude=etch* --exclude=lenny* --exclude=squeeze* --exclude=wheezy*', # lint:ignore:140chars
 
   $debian_archive_accept_push           = false,
-  $debian_archive_push_user             = $debian_push_user,
-  $debian_archive_push_homedir          = "/home/${debian_archive_push_user}",
-  $debian_archive_push_ssh_key          = undef,
+  $debian_archive_push_ssh_key          = $debian_push_ssh_key,
   $debian_archive_enable_runmirrors     = false,
   $debian_archive_runmirrors_hostnames  = [],
 
@@ -352,7 +348,7 @@ class archvsync(
   }
 
   # Set up users for sync targets if different
-  $push_configs = ['debian','debian_security','debian_archive','ubuntu']
+  $push_configs = ['debian','ubuntu']
   $push_users = Array($push_configs.each |$x| { getvar("${x}_user") }).unique
   $push_homedirs = Array($push_configs.each |$x| { getvar("${x}_homedir") }).unique
 
@@ -375,7 +371,7 @@ class archvsync(
         password_max_age => '99999',
         password_min_age => '0',
         shell            => '/bin/bash',
-        groups           => [$user,'ftp'],
+        groups           => [$user,'ftp'].unique(),
         require          => Group['ftp'],
       }
       -> file { $push_homedir:
@@ -419,17 +415,16 @@ class archvsync(
     group                   => 'ftp',
     mode                    => '0775',
     selinux_ignore_defaults => true,
-    require                 => File[$homedir]
-  }
-  file { $debian_to:
-    ensure                  => directory,
-    owner                   => $debian_push_user,
-    mode                    => '0755',
-    selinux_ignore_defaults => true,
-    require                 => File[$homedir]
   }
 
   # Resources to manage only if using those syncs
+  if ($sync_debian or $sync_debian_security or $sync_debian_archive or $sync_debian_cd) {
+    $ensure_debian_to = directory
+    $ensure_debian_ftpsync = file
+  } else {
+    $ensure_debian_to = absent
+    $ensure_debian_ftpsync = absent
+  }
   if $sync_debian_security {
     $ensure_debian_security_to = directory
     $ensure_debian_security_ftpsync = file
@@ -454,21 +449,29 @@ class archvsync(
     $ensure_ubuntu_ftpsync = absent
   }
 
-  file { $debian_security_to:
-    ensure                  => $ensure_debian_security_to,
-    owner                   => $debian_security_push_user,
-    group                   => $debian_security_push_user,
+  file { $debian_to:
+    ensure                  => $ensure_debian_to,
+    owner                   => $debian_push_user,
+    group                   => $debian_push_user,
     mode                    => '0755',
     selinux_ignore_defaults => true,
-    require                 => File[$debian_security_push_homedir],
+    require                 => File[$debian_push_homedir]
+  }
+  file { $debian_security_to:
+    ensure                  => $ensure_debian_security_to,
+    owner                   => $debian_push_user,
+    group                   => $debian_push_user,
+    mode                    => '0755',
+    selinux_ignore_defaults => true,
+    require                 => File[$debian_push_homedir],
   }
   file { $debian_archive_to:
     ensure                  => $ensure_debian_archive_to,
-    owner                   => $debian_archive_push_user,
-    group                   => $debian_archive_push_user,
+    owner                   => $debian_push_user,
+    group                   => $debian_push_user,
     mode                    => '0755',
     selinux_ignore_defaults => true,
-    require                 => File[$debian_archive_push_homedir],
+    require                 => File[$debian_push_homedir],
   }
   file { $ubuntu_to:
     ensure                  => $ensure_ubuntu_to,
@@ -487,23 +490,23 @@ class archvsync(
     content                 => template("${module_name}/ftpsync-ubuntu.conf.erb"),
     require                 => File["${ubuntu_push_homedir}/.config/ftpsync"],
   }
-  file { "${debian_security_push_homedir}/.config/ftpsync/ftpsync-security.conf":
+  file { "${debian_push_homedir}/.config/ftpsync/ftpsync-security.conf":
     ensure                  => $ensure_debian_security_ftpsync,
-    owner                   => $debian_security_push_user,
-    group                   => $debian_security_push_user,
+    owner                   => $debian_push_user,
+    group                   => $debian_push_user,
     mode                    => '0644',
     selinux_ignore_defaults => true,
     content                 => template("${module_name}/ftpsync-security.conf.erb"),
-    require                 => File["${debian_security_push_homedir}/.config/ftpsync"],
+    require                 => File["${debian_push_homedir}/.config/ftpsync"],
   }
-  file { "${debian_archive_push_homedir}/.config/ftpsync/ftpsync-archive.conf":
+  file { "${debian_push_homedir}/.config/ftpsync/ftpsync-archive.conf":
     ensure                  => $ensure_debian_archive_ftpsync,
-    owner                   => $debian_archive_push_user,
-    group                   => $debian_archive_push_user,
+    owner                   => $debian_push_user,
+    group                   => $debian_push_user,
     mode                    => '0644',
     selinux_ignore_defaults => true,
     content                 => template("${module_name}/ftpsync-archive.conf.erb"),
-    require                 => File["${debian_archive_push_homedir}/.config/ftpsync"],
+    require                 => File["${debian_push_homedir}/.config/ftpsync"],
   }
 
   if $setup_daily_cron {
@@ -538,7 +541,7 @@ class archvsync(
     if $sync_debian_security {
       if $debian_security_accept_push {
         archvsync::acceptpush { 'debian-security':
-          ssh_user       => $debian_security_push_user,
+          ssh_user       => $debian_push_user,
           ssh_public_key => $debian_security_push_ssh_key,
         }
         $ftpsync_debian_security = ''
@@ -552,8 +555,8 @@ class archvsync(
     if $sync_debian_archive {
       if $debian_archive_accept_push {
         archvsync::acceptpush { 'debian-archive':
-          ssh_user       => $debian_archive_push_user,
-          ssh_public_key => $debian_archive_push_ssh_key,
+          ssh_user       => $debian_push_user,
+          ssh_public_key => $debian_push_ssh_key,
         }
         $ftpsync_debian_archive = ''
       }else{
