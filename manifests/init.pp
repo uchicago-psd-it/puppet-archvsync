@@ -243,6 +243,7 @@ class archvsync(
   $debian_push_user                     = 'ftp',
   $debian_push_homedir                  = "/home/${debian_push_user}",
   $debian_push_ssh_key                  = undef,
+  $debian_push_ssh_key_type             = 'ssh-rsa',
   $debian_enable_runmirrors             = false,
   $debian_runmirrors_hostnames          = [],
 
@@ -255,6 +256,7 @@ class archvsync(
 
   $debian_security_accept_push          = false,
   $debian_security_push_ssh_key         = $debian_push_ssh_key,
+  $debian_security_push_ssh_key_type    = $debian_push_ssh_key_type,
   $debian_security_enable_runmirrors    = false,
   $debian_security_runmirrors_hostnames = [],
 
@@ -268,6 +270,7 @@ class archvsync(
 
   $debian_archive_accept_push           = false,
   $debian_archive_push_ssh_key          = $debian_push_ssh_key,
+  $debian_archive_push_ssh_key_type     = $debian_push_ssh_key_type,
   $debian_archive_enable_runmirrors     = false,
   $debian_archive_runmirrors_hostnames  = [],
 
@@ -283,6 +286,7 @@ class archvsync(
   $ubuntu_push_user                     = 'ftp',
   $ubuntu_push_homedir                  = "/home/${ubuntu_push_user}",
   $ubuntu_push_ssh_key                  = 'AAAAB3NzaC1yc2EAAAABIwAAAQEAt8xHRbCVFT3Uw/B+TavIlDYRoLMxOKlN3HnBeniFUJTto5Im52FbT3ODfMszz5/BIAnXBf1baWDljHErx4huohh9MxyovZ0h8GYCmMy7dZzsrV5eYhLXd2idCOKIl6gr0BTgTlJOKOgVEoZ2YtiU9MnNzRk3gkBeCMDJrnQOCC8Sko0F0RUJnrzLXOdtvDfNu7Ff+tRNb4PwrU3inbm2YJRnOoZI9vIsv/9DwsMm9d+YIIOz/7y5jLGhZ34nXzhmI6cJO92+Ve5ubhbbpKUFQAh2L1PP6A+I7jHvoWHToSaZlt+DCN4Kg+JlZuf2FXk8MeHkEc6qWWHQTFF8/ArKew==', # lint:ignore:140chars
+  $ubuntu_push_ssh_key_type             = 'ssh-rsa',
   $ubuntu_enable_runmirrors             = false,
   $ubuntu_runmirrors_hostnames          = [],
 
@@ -530,6 +534,7 @@ class archvsync(
     archvsync::acceptpush { 'debian':
       ssh_user       => $debian_push_user,
       ssh_public_key => $debian_push_ssh_key,
+      ssh_key_type   => $debian_push_ssh_key_type,
     }
     $ftpsync_debian = ''
   }else{
@@ -543,6 +548,7 @@ class archvsync(
         archvsync::acceptpush { 'debian-security':
           ssh_user       => $debian_push_user,
           ssh_public_key => $debian_security_push_ssh_key,
+          ssh_key_type   => $debian_security_push_ssh_key_type,
         }
         $ftpsync_debian_security = ''
       }else{
@@ -557,6 +563,7 @@ class archvsync(
         archvsync::acceptpush { 'debian-archive':
           ssh_user       => $debian_push_user,
           ssh_public_key => $debian_push_ssh_key,
+          ssh_key_type   => $debian_push_ssh_key_type,
         }
         $ftpsync_debian_archive = ''
       }else{
@@ -573,6 +580,7 @@ class archvsync(
         archvsync::acceptpush { 'ubuntu':
           ssh_user       => $ubuntu_push_user,
           ssh_public_key => $ubuntu_push_ssh_key,
+          ssh_key_type   => $ubuntu_push_ssh_key_type,
         }
         $ftpsync_ubuntu = ''
       }else{
