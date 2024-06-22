@@ -6,5 +6,9 @@ FTPSYNC=/usr/bin/ftpsync
 
 [ -x ${FTPSYNC} ] || exit 0
 
-cd /home/ftp
+cd <%= @homedir %>
+<% if @debian_push_user != '' -%>
+su <%= @debian_push_user -%> -s /bin/sh -c 'ftpsync'
+<% else -%>
 su ftp -s /bin/sh -c 'ftpsync'
+<% end -%>
